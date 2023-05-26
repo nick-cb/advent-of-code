@@ -4,6 +4,7 @@ use nom::character::complete::newline;
 use nom::IResult;
 use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
+use crate::day4::lib::section_assignment;
 
 pub fn without_nom(input: &str) -> String {
     let result = input.lines().map(|line| {
@@ -25,28 +26,9 @@ pub fn without_nom(input: &str) -> String {
     result.to_string()
 }
 
-fn sections(input: &str) -> IResult<&str, RangeInclusive<u32>> {
-    let (input, start) = nom::character::complete::u32(input)?;
-    let (input, _) = tag("-")(input)?;
-    let (input, end) = nom::character::complete::u32(input)?;
-
-    Ok((input, start..=end))
-}
-fn line(input: &str) -> IResult<&str, (RangeInclusive<u32>, RangeInclusive<u32>)> {
-    /*    let (input, start) = sections(input)?;
-        let (input, _) = tag(",")(input)?;
-        let (input, end) = sections(input)?;*/
-    let (input, (start, end)) = separated_pair(sections, tag(","), sections)(input)?;
-    Ok((input, (start, end)))
-}
-fn section_assignment(input: &str) -> IResult<&str, Vec<(RangeInclusive<u32>, RangeInclusive<u32>)>> {
-    let (input, ranges) = separated_list1(newline, line)(input)?;
-    Ok((input, ranges))
-}
-
 pub fn with_nom(input: &str) -> String {
     let (_, assignments) = section_assignment(input).unwrap();
-    let result =assignments.into_iter().filter(|(range_a, range_b)| {
+    let result = assignments.into_iter().filter(|(range_a, range_b)| {
         let a_contain_b = range_a.clone().into_iter().all(|num| range_b.contains(&num));
         let b_contain_a = range_b.clone().into_iter().all(|num| range_a.contains(&num));
         a_contain_b || b_contain_a
