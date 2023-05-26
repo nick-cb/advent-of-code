@@ -2,9 +2,15 @@ use crate::day4::lib::section_assignment;
 
 pub fn run(input: &str) -> String {
     let (_, assignments) = section_assignment(input).unwrap();
-    let result = assignments.into_iter().filter(|(range_a, range_b)| {
-        range_a.clone().into_iter().any(|num| range_b.contains(&num))
-    }).count();
+    let result = assignments
+        .into_iter()
+        .filter(|(range_a, range_b)| {
+            range_a
+                .clone()
+                .into_iter()
+                .any(|num| range_b.contains(&num))
+        })
+        .count();
 
     result.to_string()
 }
@@ -25,3 +31,4 @@ mod test {
         assert_eq!(run(INPUT), "4");
     }
 }
+

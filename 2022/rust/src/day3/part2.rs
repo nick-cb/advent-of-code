@@ -11,9 +11,10 @@ pub fn without_array_chunk(input: &str) -> String {
         let group_2 = lines[&i + 1];
         let group_3 = lines[&i + 2];
 
-        let common_char = group_1.chars().find(|c|
-            group_2.contains(c.clone()) && group_3.contains(c.clone())
-        ).unwrap();
+        let common_char = group_1
+            .chars()
+            .find(|c| group_2.contains(c.clone()) && group_3.contains(c.clone()))
+            .unwrap();
 
         total_scores = total_scores + letter_scores.get(&common_char).unwrap();
         i = &i + 3;
@@ -24,11 +25,18 @@ pub fn without_array_chunk(input: &str) -> String {
 
 pub fn with_array_chunk(input: &str) -> String {
     let letter_scores = get_letter_scores();
-    let result = input.lines().array_chunks::<3>().map(|[a, b, c]| {
-        let common_char = a.chars().find(|a_char| b.contains(a_char.clone()) && c.contains(a_char.clone())).unwrap();
+    let result = input
+        .lines()
+        .array_chunks::<3>()
+        .map(|[a, b, c]| {
+            let common_char = a
+                .chars()
+                .find(|a_char| b.contains(a_char.clone()) && c.contains(a_char.clone()))
+                .unwrap();
 
-        letter_scores.get(&common_char).unwrap()
-    }).sum::<usize>();
+            letter_scores.get(&common_char).unwrap()
+        })
+        .sum::<usize>();
 
     result.to_string()
 }

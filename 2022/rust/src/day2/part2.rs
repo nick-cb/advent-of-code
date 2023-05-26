@@ -1,31 +1,34 @@
 use crate::day2::lib::Move;
 
 pub fn run(input: &str) -> String {
-    let result: u32 = input.lines().map(|line| {
-        let moves: Vec<&str> = line.split(" ").collect();
-        let opponent_move = moves[0].parse::<Move>().unwrap();
+    let result: u32 = input
+        .lines()
+        .map(|line| {
+            let moves: Vec<&str> = line.split(" ").collect();
+            let opponent_move = moves[0].parse::<Move>().unwrap();
 
-        match moves[1] {
-            "X" => {
-                let our_move = match opponent_move {
-                    Move::Rock => Move::Scissors,
-                    Move::Paper => Move::Rock,
-                    Move::Scissors => Move::Paper,
-                };
+            match moves[1] {
+                "X" => {
+                    let our_move = match opponent_move {
+                        Move::Rock => Move::Scissors,
+                        Move::Paper => Move::Rock,
+                        Move::Scissors => Move::Paper,
+                    };
 
-                our_move as u32
-            },
-            "Y" => opponent_move as u32 + 3,
-            "Z" => {
-                6 + match opponent_move {
-                    Move::Rock => Move::Paper,
-                    Move::Paper => Move::Scissors,
-                    Move::Scissors => Move::Rock,
-                } as u32
-            },
+                    our_move as u32
+                }
+                "Y" => opponent_move as u32 + 3,
+                "Z" => {
+                    6 + match opponent_move {
+                        Move::Rock => Move::Paper,
+                        Move::Paper => Move::Scissors,
+                        Move::Scissors => Move::Rock,
+                    } as u32
+                }
                 _ => panic!("Not a known move"),
-        }
-    }).sum();
+            }
+        })
+        .sum();
 
     result.to_string()
 }
@@ -43,3 +46,4 @@ C Z";
         assert_eq!(result, "12");
     }
 }
+

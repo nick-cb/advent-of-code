@@ -1,9 +1,14 @@
 pub fn process_part1(input: &str) -> String {
-    let result = input.split("\n\n").map(|elf_load| {
-        elf_load.lines().map(|item| {
-            item.parse::<u32>().unwrap()
-        }).sum::<u32>()
-    }).max().unwrap();
+    let result = input
+        .split("\n\n")
+        .map(|elf_load| {
+            elf_load
+                .lines()
+                .map(|item| item.parse::<u32>().unwrap())
+                .sum::<u32>()
+        })
+        .max()
+        .unwrap();
 
     return result.to_string();
 }
