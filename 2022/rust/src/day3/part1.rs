@@ -8,7 +8,7 @@ pub fn run(input: &str) -> String {
         let compartment_a = &line[0..sack_len];
         let compartment_b = &line[sack_len..(sack_len * 2)];
 
-        let common_char = compartment_a.chars().find(|c| compartment_b.contains(*c)).unwrap();
+        let common_char = compartment_a.chars().find(|c| compartment_b.contains(c.clone())).unwrap();
 
         letter_scores.get(&common_char).unwrap()
     }).sum::<usize>();
