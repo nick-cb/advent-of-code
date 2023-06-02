@@ -40,4 +40,3 @@ C Z";
         assert_eq!(result, "15");
     }
 }
-

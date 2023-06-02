@@ -71,4 +71,3 @@ mod test {
         assert_eq!(with_nom(INPUT), "2");
     }
 }
-

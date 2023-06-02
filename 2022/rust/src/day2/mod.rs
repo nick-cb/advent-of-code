@@ -8,4 +8,3 @@ pub fn run() {
     println!("Part 1: {}", part1::run(input.as_str()));
     println!("Part 2: {}", part2::run(input.as_str()));
 }
-

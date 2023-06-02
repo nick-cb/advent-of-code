@@ -31,4 +31,3 @@ mod test {
         assert_eq!(run(INPUT), "4");
     }
 }
-

@@ -12,4 +12,3 @@ pub fn run() {
     println!("{}", process_part1(contents.as_str()));
     println!("{}", process_part2(contents.as_str()));
 }
-
