@@ -2,26 +2,19 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete;
 use nom::character::complete::{alpha1, char, digit1, multispace1, newline, space1};
-use nom::combinator::complete;
-use nom::IResult;
 use nom::multi::{many1, separated_list1};
 use nom::sequence::{delimited, preceded};
+use nom::IResult;
 
 pub fn parse_crate(input: &str) -> IResult<&str, Option<&str>> {
-    let (input, str) = alt((
-        tag("   "),
-        delimited(
-            char('['),
-            alpha1,
-            char(']')) ))
-        (input)?;
+    let (input, str) = alt((tag("   "), delimited(char('['), alpha1, char(']'))))(input)?;
 
     let result = match str {
         "   " => None,
-        value => Some(value)
+        value => Some(value),
     };
 
-    Ok(( input, result ))
+    Ok((input, result))
 }
 
 pub fn line(input: &str) -> IResult<&str, Vec<Option<&str>>> {
@@ -42,17 +35,20 @@ fn move_crate(input: &str) -> IResult<&str, Move> {
     let (input, _) = tag(" to ")(input)?;
     let (input, to) = complete::u32(input)?;
 
-    Ok((input, Move {
-        number,
-        from: from - 1,
-        to: to - 1,
-    }))
+    Ok((
+        input,
+        Move {
+            number,
+            from: from - 1,
+            to: to - 1,
+        },
+    ))
 }
 
-fn crates(input:&str) -> IResult<&str,(Vec<Vec<&str>>, Vec<Move>)> {
+fn crates(input: &str) -> IResult<&str, (Vec<Vec<&str>>, Vec<Move>)> {
     let (input, crate_horizontal) = separated_list1(newline, line)(input)?;
     let (input, _) = newline(input)?;
-    let (input, numbers) = many1(preceded(space1, digit1))(input)?;
+    let (input, _) = many1(preceded(space1, digit1))(input)?;
     let (input, _) = multispace1(input)?;
     let (input, moves) = separated_list1(newline, move_crate)(input)?;
 
@@ -67,34 +63,41 @@ fn crates(input:&str) -> IResult<&str,(Vec<Vec<&str>>, Vec<Move>)> {
     }
     let final_crates = crate_vertical
         .iter()
-        .map(|vec| vec.iter().filter_map(|v| *v)
-            .collect()).collect();
-    Ok(( input, (final_crates, moves) ))
+        .map(|vec| vec.iter().filter_map(|v| *v).collect())
+        .collect();
+    Ok((input, (final_crates, moves)))
 }
 
-pub fn run(input: &str) -> String {
+pub fn without_drain(input: &str) -> String {
     let (_, (mut stacks, moves)) = crates(input).unwrap();
     for Move { number, from, to } in moves.iter() {
-        let items: Vec<_> = stacks[from.clone() as usize].splice(0..(number.clone() as usize), Vec::new()).collect();
+        let items: Vec<_> = stacks[from.clone() as usize]
+            .splice(0..(number.clone() as usize), Vec::new())
+            .collect();
         for item in items.iter() {
-            stacks[to.clone() as usize].insert(0,item);
+            stacks[to.clone() as usize].insert(0, item);
         }
     }
 
-    let result = stacks.iter().filter_map(|stack| stack.first()).map(|item| *item).collect::<Vec<&str>>().join("");
+    let result = stacks
+        .iter()
+        .filter_map(|stack| stack.first())
+        .map(|item| *item)
+        .collect::<Vec<&str>>()
+        .join("");
 
     result.to_string()
 }
 
 #[cfg(test)]
 mod test {
-    use std::fs;
     use super::*;
+    use std::fs;
 
     #[test]
     fn it_work() {
         // Jetbrains's stupid auto remove trailing whitespace make me do this
         let test_input = fs::read_to_string("src/day5/test.txt").unwrap();
-        assert_eq!(run(test_input.as_str()), "CMZ");
+        assert_eq!(without_drain(test_input.as_str()), "CMZ");
     }
 }

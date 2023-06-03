@@ -1,4 +1,5 @@
 #![feature(iter_array_chunks)]
+#![allow(dead_code)]
 mod day1;
 mod day2;
 mod day3;
@@ -11,4 +12,5 @@ fn main() {
     // day2::run();
     // day3::run();
     // day4::run();
+    day5::run();
 }
