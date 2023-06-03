@@ -56,7 +56,7 @@ fn crates(input: &str) -> IResult<&str, (Vec<Vec<&str>>, Vec<Move>)> {
     for _ in 0..=crate_horizontal.iter().len() {
         crate_vertical.push(vec![]);
     }
-    for vec in crate_horizontal.iter() {
+    for vec in crate_horizontal.iter().rev() {
         for (i, c) in vec.iter().enumerate() {
             crate_vertical[i].push(c.clone());
         }
@@ -68,23 +68,49 @@ fn crates(input: &str) -> IResult<&str, (Vec<Vec<&str>>, Vec<Move>)> {
     Ok((input, (final_crates, moves)))
 }
 
+// MQSHJMWNH
 pub fn without_drain(input: &str) -> String {
     let (_, (mut stacks, moves)) = crates(input).unwrap();
     for Move { number, from, to } in moves.iter() {
-        let items: Vec<_> = stacks[from.clone() as usize]
-            .splice(0..(number.clone() as usize), Vec::new())
-            .collect();
-        for item in items.iter() {
-            stacks[to.clone() as usize].insert(0, item);
+        let stack = &mut stacks[from.clone() as usize];
+        let items = stack
+            .split_off(stack.len() - number.clone() as usize);
+
+        for item in items.iter().rev() {
+            stacks[to.clone() as usize].push(item)
         }
     }
 
     let result = stacks
         .iter()
-        .filter_map(|stack| stack.first())
+        .filter_map(|stack| stack.last())
         .map(|item| *item)
         .collect::<Vec<&str>>()
         .join("");
+
+    result.to_string()
+}
+
+// MQSHJMWNH
+pub fn with_drained(input: &str) -> String {
+    let (_, (mut stacks, moves)) = crates(input).unwrap();
+    for Move { number, from, to } in moves.iter() {
+        let len = stacks[from.clone() as usize].len();
+        let drained = stacks[from.clone() as usize]
+            .drain((len - number.clone() as usize)..)
+            .rev()
+            .collect::<Vec<&str>>();
+        // dbg!(&drained);
+        for c in drained.iter() {
+            stacks[to.clone() as usize].push(c);
+        }
+    }
+
+    let result: String = stacks.iter()
+        .map(|v| match v.iter().last() {
+            Some(c) => c,
+            None => ""
+        }).collect();
 
     result.to_string()
 }
@@ -95,9 +121,15 @@ mod test {
     use std::fs;
 
     #[test]
-    fn it_work() {
+    fn without_drain_work() {
         // Jetbrains's stupid auto remove trailing whitespace make me do this
         let test_input = fs::read_to_string("src/day5/test.txt").unwrap();
         assert_eq!(without_drain(test_input.as_str()), "CMZ");
+    }
+
+    #[test]
+    fn with_drained_work() {
+        let test_input = fs::read_to_string("src/day5/test.txt").unwrap();
+        assert_eq!(with_drained(test_input.as_str()), "CMZ");
     }
 }
