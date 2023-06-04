@@ -1,4 +1,6 @@
-pub fn run(input: &str ) -> String {
+use std::collections::BTreeSet;
+
+pub fn brute_force(input: &str ) -> String {
     let mut index: usize = 0;
     for (i, char) in input.chars().enumerate() {
         if i > input.len() - 4 || (i > &index + 3)  {
@@ -18,6 +20,20 @@ pub fn run(input: &str ) -> String {
     (&index + 4).to_string()
 }
 
+pub fn using_windows(input: &str) -> String {
+    let chars = input
+        .chars()
+        .collect::<Vec<char>>();
+    let sequence = chars.windows(4)
+        .enumerate()
+        .find(|(_i, slice)| {
+            let set = slice.iter().collect::<BTreeSet<&char>>();
+            slice.len() == set.len()
+        }).unwrap();
+
+    (sequence.0 + 1 + 3).to_string()
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -28,11 +44,20 @@ mod test {
     const INPUT5: &str = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
 
     #[test]
-    fn it_work() {
-        assert_eq!(run(INPUT1), "7");
-        assert_eq!(run(INPUT2), "5");
-        assert_eq!(run(INPUT3), "6");
-        assert_eq!(run(INPUT4), "10");
-        assert_eq!(run(INPUT5), "11");
+    fn brute_force_works() {
+        assert_eq!(brute_force(INPUT1), "7");
+        assert_eq!(brute_force(INPUT2), "5");
+        assert_eq!(brute_force(INPUT3), "6");
+        assert_eq!(brute_force(INPUT4), "10");
+        assert_eq!(brute_force(INPUT5), "11");
+    }
+
+    #[test]
+    fn window_works() {
+        assert_eq!(using_windows(INPUT1), "7");
+        assert_eq!(using_windows(INPUT2), "5");
+        assert_eq!(using_windows(INPUT3), "6");
+        assert_eq!(using_windows(INPUT4), "10");
+        assert_eq!(using_windows(INPUT5), "11");
     }
 }
