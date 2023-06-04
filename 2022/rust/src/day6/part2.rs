@@ -2,10 +2,14 @@ use std::collections::BTreeSet;
 
 pub fn run(input: &str) -> String {
     let chars = input.chars().collect::<Vec<char>>();
-    let (i, _) = chars.windows(14).enumerate().find(|(_i, slice)| {
-        let set = slice.iter().collect::<BTreeSet<&char>>();
-        slice.len() == set.len()
-    }).unwrap();
+    let (i, _) = chars
+        .windows(14)
+        .enumerate()
+        .find(|(_i, slice)| {
+            let set = slice.iter().collect::<BTreeSet<&char>>();
+            slice.len() == set.len()
+        })
+        .unwrap();
 
     (i + 1 + 13).to_string()
 }
@@ -28,3 +32,4 @@ mod test {
         assert_eq!(run(INPUT5), "26");
     }
 }
+

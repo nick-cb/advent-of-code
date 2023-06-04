@@ -1,12 +1,12 @@
 use std::collections::BTreeSet;
 
-pub fn brute_force(input: &str ) -> String {
+pub fn brute_force(input: &str) -> String {
     let mut index: usize = 0;
     for (i, char) in input.chars().enumerate() {
-        if i > input.len() - 4 || (i > &index + 3)  {
+        if i > input.len() - 4 || (i > &index + 3) {
             break;
         }
-        let sub = &input[i..=&i+3];
+        let sub = &input[i..=&i + 3];
         for (j, sub_char) in sub.chars().skip(1).enumerate() {
             if char == sub_char {
                 if i + j > &index + 3 {
@@ -21,15 +21,15 @@ pub fn brute_force(input: &str ) -> String {
 }
 
 pub fn using_windows(input: &str) -> String {
-    let chars = input
-        .chars()
-        .collect::<Vec<char>>();
-    let sequence = chars.windows(4)
+    let chars = input.chars().collect::<Vec<char>>();
+    let sequence = chars
+        .windows(4)
         .enumerate()
         .find(|(_i, slice)| {
             let set = slice.iter().collect::<BTreeSet<&char>>();
             slice.len() == set.len()
-        }).unwrap();
+        })
+        .unwrap();
 
     (sequence.0 + 1 + 3).to_string()
 }
@@ -61,3 +61,4 @@ mod test {
         assert_eq!(using_windows(INPUT5), "11");
     }
 }
+
