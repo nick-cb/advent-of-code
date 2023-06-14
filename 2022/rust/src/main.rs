@@ -1,3 +1,4 @@
+#![feature(iter_intersperse)]
 #![feature(iter_array_chunks)]
 #![allow(dead_code)]
 mod day1;
