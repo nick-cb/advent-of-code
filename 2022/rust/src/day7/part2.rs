@@ -7,54 +7,47 @@ pub fn run(input: &str) -> String {
     let mut directories: BTreeMap<String, Vec<File>> = BTreeMap::new();
     let mut context: Vec<&str> = vec![];
 
-    for command in cmds.iter() {
-        match command {
-            Operation::Cd(Cd::Root) => {
-                context.push("");
-            }
-            Operation::Cd(Cd::Up) => {
-                context.pop();
-            }
-            Operation::Cd(Cd::Down(name)) => {
-                context.push(name);
-            }
+    for cmd in cmds.iter() {
+        match cmd {
+            Operation::Cd(Cd::Root) => {context.push("");},
+            Operation::Cd(Cd::Up) => {context.pop();},
+Operation::Cd(Cd::Down(name)) => {
+    context.push(name);
+},
             Operation::Ls(files) => {
-                directories.entry(context.iter()
-                    .cloned()
-                    .intersperse("/")
-                    .collect::<String>()
-                ).or_insert(vec![]);
+                let dir_path = context.iter().cloned().intersperse("/").collect::<String>();
+                directories.entry(dir_path.clone()).or_insert(vec![]);
+
                 for file in files.iter() {
                     match file {
                         Files::File {size, name} => {
-                            directories.entry(context.iter().cloned().intersperse("/").collect::<String>()).and_modify(|vec| {
+                            directories.entry(dir_path.clone()).and_modify(|vec| {
                                 vec.push(File {
                                     size: size.clone(),
                                     name,
                                 })
                             });
-                        }
+                        },
                         Files::Dir(__) => ()
-                    }
+                    };
                 }
             }
-        }
+        };
     }
-dbg!(&directories);
     let mut sizes: BTreeMap<String, u32> = BTreeMap::new();
     for (path, files) in directories.iter() {
         let dirs = path.split("/").collect::<Vec<&str>>();
-        let size = files.iter().map(|File {size, ..}| size).sum::<u32>();
+        let total_file_size = files.iter().map(|file| file.size.clone()).sum::<u32>();
         for i in 0..dirs.len() {
-            sizes.entry((&dirs[0..=i]).iter()
-                .cloned()
-                .intersperse("/")
-                .collect::<String>()
-            ).and_modify(|v| *v += size.clone()).or_insert(size.clone());
+            sizes.entry((dirs[0..=i]).iter().cloned().intersperse("/").collect::<String>()).and_modify(|size| {
+                *size += total_file_size.clone()
+            }).or_insert(total_file_size.clone());
         }
-    }
+    };
+    let mut size_vec = sizes.iter().map(|(_, size)| *size).collect::<Vec<u32>>();
+    size_vec.sort();
+    size_vec.iter().find(|val| (70_000_000 - size_vec.last().unwrap()) + *val  >= 30_000_000 ).unwrap().to_string()
 
-    sizes.iter().filter(|(_, &size) | size < 100000).map(|(_, size) | size).sum::<u32>().to_string()
 }
 
 #[cfg(test)]
@@ -86,6 +79,6 @@ $ ls
 
     #[test]
     fn it_works() {
-        assert_eq!(run(INPUT), "95437");
+        assert_eq!(run(INPUT), "24933642");
     }
 }
