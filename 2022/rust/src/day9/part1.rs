@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-use std::hash::{Hash, Hasher};
 use nom::{
     bytes::complete::tag,
     character::{
@@ -11,7 +9,6 @@ use nom::{
     IResult,
 };
 
-#[derive(Debug)]
 struct Point {
     x: i32,
     y: i32,
@@ -49,55 +46,32 @@ fn parse_line(input: &str) -> IResult<&str, Vec<Point>> {
 }
 
 pub fn run(input: &str) -> String {
-    let mut visited:Vec<Point> = vec![];
+    let mut visited = 1;
     let mut head = Point { x: 0, y: 0 };
     let mut tail = Point { x: 0, y: 0 };
-    visited.push(Point {
-        x: 0,
-        y: 0,
-    });
     let (_, direction_vec) = parse_line(input).unwrap();
-    dbg!(&direction_vec);
+
     for Point { x, y } in direction_vec {
         let value = if x != 0 { x } else { y };
-
-        for _ in 0..value.abs() {
+        for _ in 0..value {
             let prev = Point {
                 x: head.x.clone(),
                 y: head.y.clone(),
             };
             if x != 0 {
-                if value > 0 {
-                    head.x += 1;
-                } else {
-                    head.x -= 1;
-                }
+                head.x += x.signum();
             } else {
-                if value > 0 {
-                    head.y += 1;
-                } else {
-                    head.y -= 1;
-                }
+                head.y += y.signum();
             }
             let distance = (((head.x - tail.x).pow(2) + (head.y - tail.y).pow(2)) as f32).sqrt();
-            if distance >= 2.0 {
+            if distance > 1 as f32 {
                 tail.x = prev.x;
                 tail.y = prev.y;
-                let mut item_found = false;
-                for Point {x, y} in &visited {
-                    if *x == prev.x && *y == prev.y {
-                        item_found = true;
-                        break;
-                    }
-                };
-                if item_found == false {
-                    visited.push(prev);
-                }
+                visited += 1;
             }
         }
     }
-
-    visited.len().to_string()
+    visited.to_string()
 }
 
 #[cfg(test)]
