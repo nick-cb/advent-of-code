@@ -46,14 +46,14 @@ fn parse_line(input: &str) -> IResult<&str, Vec<Point>> {
 }
 
 pub fn run(input: &str) -> String {
-    let mut visited = 1;
+    let mut visited: Vec<Point> = vec![];
     let mut head = Point { x: 0, y: 0 };
     let mut tail = Point { x: 0, y: 0 };
     let (_, direction_vec) = parse_line(input).unwrap();
-
+    visited.push(Point{x: 0, y: 0});
     for Point { x, y } in direction_vec {
         let value = if x != 0 { x } else { y };
-        for _ in 0..value {
+        for _ in 0..value.abs() {
             let prev = Point {
                 x: head.x.clone(),
                 y: head.y.clone(),
@@ -64,14 +64,23 @@ pub fn run(input: &str) -> String {
                 head.y += y.signum();
             }
             let distance = (((head.x - tail.x).pow(2) + (head.y - tail.y).pow(2)) as f32).sqrt();
-            if distance > 1 as f32 {
+            if distance >= 2.0 {
                 tail.x = prev.x;
                 tail.y = prev.y;
-                visited += 1;
+                let mut exist = false;
+                for Point {x, y} in visited.iter_mut() {
+                    if *x == tail.x && *y == tail.y {
+                        exist = true;
+                        break;
+                    }
+                }
+                if !exist {
+                    visited.push(prev);
+                }
             }
         }
     }
-    visited.to_string()
+    visited.len().to_string()
 }
 
 #[cfg(test)]
