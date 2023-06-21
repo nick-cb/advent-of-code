@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-use std::hash::{Hash, Hasher};
+use std::hash::{Hasher};
 use nom::{
     bytes::complete::tag,
     character::{
@@ -17,86 +16,149 @@ struct Point {
     y: i32,
 }
 
-fn direction_parser(input: &str) -> IResult<&str, Point> {
+enum Direction {
+    R(i32),
+    L(i32),
+    U(i32),
+    D(i32),
+}
+
+fn direction_parser(input: &str) -> IResult<&str, Direction> {
     let (input, (direction, value)) =
         separated_pair(character::complete::alpha0, tag(" "), digit1)(input)?;
     let point = match direction {
-        "R" => Point {
-            x: value.parse::<i32>().unwrap(),
-            y: 0,
-        },
-        "L" => Point {
-            x: -value.parse::<i32>().unwrap(),
-            y: 0,
-        },
-        "U" => Point {
-            x: 0,
-            y: value.parse::<i32>().unwrap(),
-        },
-        "D" => Point {
-            x: 0,
-            y: -value.parse::<i32>().unwrap(),
-        },
+        "R" => Direction::R(value.parse::<i32>().unwrap()),
+        "L" => Direction::L(value.parse::<i32>().unwrap()),
+        "U" => Direction::U(value.parse::<i32>().unwrap()),
+        "D" => Direction::D(value.parse::<i32>().unwrap()),
         _ => panic!("Invalid direction: {}", direction),
     };
     Ok((input, point))
 }
 
-fn parse_line(input: &str) -> IResult<&str, Vec<Point>> {
-    let (input, points) = separated_list1(newline, direction_parser)(input)?;
+fn parse_line(input: &str) -> IResult<&str, Vec<Direction>> {
+    let (input, directions) = separated_list1(newline, direction_parser)(input)?;
 
-    Ok((input, points))
+    Ok((input, directions))
 }
 
 pub fn run(input: &str) -> String {
-    let mut visited:Vec<Point> = vec![];
+    let mut visited: Vec<Point> = vec![];
     let mut head = Point { x: 0, y: 0 };
     let mut tail = Point { x: 0, y: 0 };
     visited.push(Point {
         x: 0,
-        y: 0,
+        y: 0
     });
     let (_, direction_vec) = parse_line(input).unwrap();
-    dbg!(&direction_vec);
-    for Point { x, y } in direction_vec {
-        let value = if x != 0 { x } else { y };
-
-        for _ in 0..value.abs() {
-            let prev = Point {
-                x: head.x.clone(),
-                y: head.y.clone(),
-            };
-            if x != 0 {
-                if value > 0 {
+    for direction in direction_vec {
+        match direction {
+            Direction::R(count) => {
+                for _ in 0..count {
                     head.x += 1;
-                } else {
-                    head.x -= 1;
-                }
-            } else {
-                if value > 0 {
-                    head.y += 1;
-                } else {
-                    head.y -= 1;
-                }
-            }
-            let distance = (((head.x - tail.x).pow(2) + (head.y - tail.y).pow(2)) as f32).sqrt();
-            if distance >= 2.0 {
-                tail.x = prev.x;
-                tail.y = prev.y;
-                let mut item_found = false;
-                for Point {x, y} in &visited {
-                    if *x == prev.x && *y == prev.y {
-                        item_found = true;
+                    if head.x - tail.x < 2 {
+                        continue;
+                    }
+                    if tail.x != head.x {
+                        tail.y = head.y;
+                    }
+                    if tail.x == head.x - 1 {
                         break;
                     }
-                };
-                if item_found == false {
-                    visited.push(prev);
+                    tail.x += 1;
+                    let mut exist = false;
+                    for Point {x, y} in &mut visited {
+                        if x == &tail.x && y == &tail.y {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if !exist {
+                        visited.push(Point {x: tail.x.clone(), y: tail.y.clone()});
+                    }
+                }
+/*                head.x += count;
+                if tail.x != head.x {
+                    tail.y = head.y;
+                }
+                let next_point = head.x - 1;
+                visited += next_point - tail.x;
+               tail.x = next_point; */
+            },
+            Direction::L(count) => {
+                for _ in 0..count {
+                    head.x -= 1;
+                    if tail.x - head.x < 2 {
+                        continue;
+                    }
+                    if tail.x != head.x {
+                        tail.y = head.y;
+                    }
+                    if tail.x == head.x + 1 {
+                        break;
+                    }
+                    tail.x -= 1;
+                    let mut exist = false;
+                    for Point {x, y} in &mut visited {
+                        if x == &tail.x && y == &tail.y {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if !exist {
+                        visited.push(Point {x: tail.x.clone(), y: tail.y.clone()});
+                    }
                 }
             }
-        }
+            Direction::U(count) => {
+                for _ in 0..count {
+                    head.y += 1;
+                    if head.y - tail.y < 2 {
+                        continue;
+                    }
+                    if tail.y != head.y {
+                        tail.x = head.x;
+                    }
+                    if tail.y == head.y - 1 {
+                        break;
+                    }
+                    tail.y += 1;
+                    let mut exist = false;
+                    for Point {x, y} in &mut visited {
+                        if x == &tail.x && y == &tail.y {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if !exist {
+                        visited.push(Point {x: tail.x.clone(), y: tail.y.clone()});
+                    }
+                }
+            }
+            Direction::D(count) => {
+                for _ in 0..count {
+                    head.y -= 1;
+                    if tail.y - head.y < 2 {
+                        continue;
+                    }
+                    if tail.y != head.y {
+                        tail.x = head.x;
+                    }
+                    tail.y -= 1;
+                    let mut exist = false;
+                    for Point {x, y} in &mut visited {
+                        if x == &tail.x && y == &tail.y {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if !exist {
+                        visited.push(Point {x: tail.x.clone(), y: tail.y.clone()});
+                    }
+                }
+            }
+        };
     }
-
     visited.len().to_string()
 }
 
