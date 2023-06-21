@@ -10,7 +10,7 @@ use nom::{
     IResult,
 };
 
-#[derive(Debug, Eq, Hash)]
+#[derive(Debug, Eq, Hash, Clone)]
 struct Point {
     x: i32,
     y: i32,
@@ -54,20 +54,14 @@ fn parse_line(input: &str) -> IResult<&str, Vec<Point>> {
 }
 
 pub fn run(input: &str) -> String {
-    let mut visited = HashSet::from([Point {
-        x: 0,
-        y: 0,
-    }]);
     let mut head = Point { x: 0, y: 0 };
     let mut tail = Point { x: 0, y: 0 };
+    let mut visited = HashSet::from([tail.clone()]);
     let (_, direction_vec) = parse_line(input).unwrap();
     for Point { x, y } in direction_vec {
         let value = if x != 0 { x } else { y };
         for _ in 0..value.abs() {
-            let prev = Point {
-                x: head.x.clone(),
-                y: head.y.clone(),
-            };
+            let prev = head.clone();
             if x != 0 {
                 head.x += x.signum();
             } else {
