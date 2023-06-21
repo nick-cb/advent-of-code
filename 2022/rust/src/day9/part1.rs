@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use nom::{
     bytes::complete::tag,
     character::{
@@ -9,9 +10,16 @@ use nom::{
     IResult,
 };
 
+#[derive(Debug, Eq, Hash)]
 struct Point {
     x: i32,
     y: i32,
+}
+
+impl PartialEq for Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
 }
 
 fn direction_parser(input: &str) -> IResult<&str, Point> {
@@ -46,11 +54,13 @@ fn parse_line(input: &str) -> IResult<&str, Vec<Point>> {
 }
 
 pub fn run(input: &str) -> String {
-    let mut visited: Vec<Point> = vec![];
+    let mut visited = HashSet::from([Point {
+        x: 0,
+        y: 0,
+    }]);
     let mut head = Point { x: 0, y: 0 };
     let mut tail = Point { x: 0, y: 0 };
     let (_, direction_vec) = parse_line(input).unwrap();
-    visited.push(Point{x: 0, y: 0});
     for Point { x, y } in direction_vec {
         let value = if x != 0 { x } else { y };
         for _ in 0..value.abs() {
@@ -67,16 +77,7 @@ pub fn run(input: &str) -> String {
             if distance >= 2.0 {
                 tail.x = prev.x;
                 tail.y = prev.y;
-                let mut exist = false;
-                for Point {x, y} in visited.iter_mut() {
-                    if *x == tail.x && *y == tail.y {
-                        exist = true;
-                        break;
-                    }
-                }
-                if !exist {
-                    visited.push(prev);
-                }
+                visited.insert(prev);
             }
         }
     }
