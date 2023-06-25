@@ -1,6 +1,6 @@
-use std::collections::HashSet;
 use crate::day9::lib;
 use crate::day9::lib::Point;
+use std::collections::HashSet;
 
 pub fn run(input: &str) -> String {
     let mut head = Point { x: 0, y: 0 };
