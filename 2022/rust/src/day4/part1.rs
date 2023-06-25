@@ -1,10 +1,4 @@
 use crate::day4::lib::section_assignment;
-use nom::bytes::complete::tag;
-use nom::character::complete::newline;
-use nom::multi::separated_list1;
-use nom::sequence::separated_pair;
-use nom::IResult;
-use std::ops::{Range, RangeInclusive};
 
 pub fn without_nom(input: &str) -> String {
     let result = input
