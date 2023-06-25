@@ -1,63 +1,12 @@
 use std::collections::HashSet;
-use nom::{
-    bytes::complete::tag,
-    character::{
-        self,
-        complete::{digit1, newline},
-    },
-    multi::separated_list1,
-    sequence::separated_pair,
-    IResult,
-};
-
-#[derive(Debug, Eq, Hash, Clone)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-impl PartialEq for Point {
-    fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y
-    }
-}
-
-fn direction_parser(input: &str) -> IResult<&str, Point> {
-    let (input, (direction, value)) =
-        separated_pair(character::complete::alpha0, tag(" "), digit1)(input)?;
-    let point = match direction {
-        "R" => Point {
-            x: value.parse::<i32>().unwrap(),
-            y: 0,
-        },
-        "L" => Point {
-            x: -value.parse::<i32>().unwrap(),
-            y: 0,
-        },
-        "U" => Point {
-            x: 0,
-            y: value.parse::<i32>().unwrap(),
-        },
-        "D" => Point {
-            x: 0,
-            y: -value.parse::<i32>().unwrap(),
-        },
-        _ => panic!("Invalid direction: {}", direction),
-    };
-    Ok((input, point))
-}
-
-fn parse_line(input: &str) -> IResult<&str, Vec<Point>> {
-    let (input, points) = separated_list1(newline, direction_parser)(input)?;
-
-    Ok((input, points))
-}
+use crate::day9::lib;
+use crate::day9::lib::Point;
 
 pub fn run(input: &str) -> String {
     let mut head = Point { x: 0, y: 0 };
     let mut tail = Point { x: 0, y: 0 };
     let mut visited = HashSet::from([tail.clone()]);
-    let (_, direction_vec) = parse_line(input).unwrap();
+    let (_, direction_vec) = lib::parse_line(input).unwrap();
     for Point { x, y } in direction_vec {
         let value = if x != 0 { x } else { y };
         for _ in 0..value.abs() {

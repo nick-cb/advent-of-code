@@ -1,3 +1,4 @@
+#![feature(get_many_mut)]
 #![feature(iter_intersperse)]
 #![feature(iter_array_chunks)]
 #![allow(dead_code)]
