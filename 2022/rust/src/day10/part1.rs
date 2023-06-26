@@ -1,25 +1,34 @@
 pub fn run(input: &str) -> String {
-    let mut register_x: i32 = 0;
+    let mut register_x: i32 = 1;
     let mut strengths: Vec<i32> = vec![];
     let mut cycle = 0;
     for line in input.lines() {
         let result = line.split(" ").collect::<Vec<&str>>();
         let command = result.get(0).unwrap();
-        let count = result.get(1).unwrap().parse::<i32>().unwrap();
-        let remaining = match *command {
-            "addx" => 2,
-            "noop" => 1,
+        match *command {
+            "addx" => {
+                let count = result.get(1).unwrap().parse::<i32>().unwrap();
+                for _ in 0..2 {
+                    cycle += 1;
+                    if cycle == 20 || cycle % 40 == 20 {
+                        strengths.push(cycle * register_x);
+                    }
+                }
+                register_x += count;
+            },
+            "noop" => {
+                cycle += 1;
+                if cycle == 20 || cycle % 40 == 20 {
+                    strengths.push(cycle * register_x);
+                }
+            },
             _ => panic!("Invalid command"),
         };
 
-        cycle += remaining;
-        register_x += count;
-        if cycle == 20 || cycle % 40 == 20 {
-            strengths.push(count * register_x);
-        }
     };
 
     let result = strengths.into_iter().sum::<i32>();
+
     result.to_string()
 }
 
@@ -179,3 +188,13 @@ noop";
         assert_eq!(run(INPUT), "13140");
     }
 }
+
+
+/*
+noop
+addx 3
+addx -5
+
+noop => =1=
+addx = =2=..=3=
+*/

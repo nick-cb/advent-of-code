@@ -4,5 +4,5 @@ mod part1;
 
 pub fn run() {
     let input = fs::read_to_string("src/day10/input.txt").unwrap();
-    part1::run(input.as_str());
+    println!("Part1: {}", part1::run(input.as_str()));
 }
