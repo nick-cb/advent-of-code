@@ -188,13 +188,3 @@ noop";
         assert_eq!(run(INPUT), "13140");
     }
 }
-
-
-/*
-noop
-addx 3
-addx -5
-
-noop => =1=
-addx = =2=..=3=
-*/
