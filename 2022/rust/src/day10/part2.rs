@@ -10,9 +10,12 @@ pub fn run(input: &str) {
             "addx" => {
                 let count = result.get(1).unwrap().parse::<i32>().unwrap();
                 for _ in 0..2 {
-                    let i = ((cycle/40) as f32).floor() as usize;
+                    let i = ((cycle / 40) as f32).floor() as usize;
                     let j = cycle as usize % 40;
-                    if j as i32 == register_x - 1 || j as i32 == register_x || j as i32 == register_x + 1 {
+                    if j as i32 == register_x - 1
+                        || j as i32 == register_x
+                        || j as i32 == register_x + 1
+                    {
                         crt_grid[i][j] = true;
                     } else {
                         crt_grid[i][j] = false;
@@ -22,12 +25,15 @@ pub fn run(input: &str) {
                 register_x += count;
             }
             "noop" => {
-                let i = ((cycle/40) as f32).floor() as usize;
+                let i = ((cycle / 40) as f32).floor() as usize;
                 if i == 1 {
                     dbg!((&cycle, &register_x));
                 }
                 let j = cycle as usize % 40;
-                if j as i32 == register_x - 1 || j as i32 == register_x || j as i32 == register_x + 1 {
+                if j as i32 == register_x - 1
+                    || j as i32 == register_x
+                    || j as i32 == register_x + 1
+                {
                     crt_grid[i][j] = true;
                 } else {
                     crt_grid[i][j] = false;
@@ -205,4 +211,3 @@ noop";
         run(INPUT);
     }
 }
-
