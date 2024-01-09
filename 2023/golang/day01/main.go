@@ -1,49 +1,79 @@
 package main
 
 import (
-  "fmt"
   "os"
   "log"
-  "strconv"
-  "bufio"
   "strings"
+  "bufio"
+  "fmt"
 )
 
 func main() {
   file, err := os.Open("input.txt")
   if err != nil {
-    log.Fatalf("readlines: %s", err)
+    log.Fatal(err)
   }
   defer file.Close()
-
   scanner := bufio.NewScanner(file)
+
+  digits := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"}
+  digits_en := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
   total := 0
+
   for scanner.Scan() {
-    text := scanner.Text()
-    chars := strings.Split(text, "")
+    line := scanner.Text()
 
-    nums := []string{"", ""}
-    for _, char := range chars {
-      _, err := strconv.Atoi(char)
-      if err != nil {
-        continue
+    first_digit := [2]int{-1, 0}
+    last_digit := [2]int{-1, 0}
+
+    for i := 0; i < 9; i++ {
+      digit := digits[i]
+      first_digit_final := -1
+      last_digit_final := -1
+
+      first_digit_idx := strings.Index(line, digit)
+      last_digit_idx := strings.LastIndex(line, digit)
+
+      digit_en := digits_en[i]
+      first_digit_en_idx := strings.LastIndex(line, digit_en)
+      last_digit_en_idx := strings.LastIndex(line, digit_en)
+
+      if first_digit_idx > -1 && first_digit_en_idx > -1 {
+        if first_digit[0] != -1 {
+          first_digit_final = min(min(first_digit_idx, first_digit_en_idx), first_digit_final)
+        } else {
+          first_digit_final = min(first_digit_idx, first_digit_en_idx)
+        }
+      } else {
+        first_digit_final = min(max(first_digit_idx, first_digit_en_idx), first_digit_final)
       }
-      if nums[0] == "" {
-        nums[0] = char
-        continue
+
+      if first_digit_final != first_digit[1] {
+        first_digit[1] = i
       }
-      nums[1] = char
-    }
-    if nums[1] == "" {
-      nums[1] = nums[0]
+
+      if last_digit_idx > -1 && last_digit_en_idx > -1 {
+        if last_digit[0] != 1 {
+          last_digit_final = max(max(last_digit_idx, last_digit_en_idx), last_digit_final)
+        } else {
+          last_digit_final = max(last_digit_idx, last_digit_en_idx)
+        }
+      } else {
+        last_digit_final = max(max(last_digit_idx, last_digit_en_idx), last_digit_final)
+      }
+
+      if last_digit_final != last_digit[1] {
+        last_digit[1] =  i
+      }
     }
 
-    calibration, err := strconv.Atoi(strings.Trim(strings.Join(nums, ""), " "))
-    if err != nil {
-      continue
+    if last_digit[0] == -1 {
+      last_digit[0] = first_digit[0]
+      last_digit[1] = first_digit[1]
     }
-    total += calibration
+    fmt.Printf("%s - %s\n", first_digit[1], last_digit[1])
+    total += (first_digit[1] + last_digit[1])
   }
 
-  fmt.Printf("%s", total)
+  fmt.Print(total)
 }
