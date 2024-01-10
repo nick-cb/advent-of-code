@@ -6,6 +6,7 @@ import (
   "strings"
   "bufio"
   "fmt"
+  "strconv"
 )
 
 func main() {
@@ -27,52 +28,43 @@ func main() {
     last_digit := [2]int{-1, 0}
 
     for i := 0; i < 9; i++ {
-      digit := digits[i]
-      first_digit_final := -1
-      last_digit_final := -1
+      first_digit_idx := strings.Index(line, digits[i])
+      first_digit_en_idx := strings.Index(line, digits_en[i])
 
-      first_digit_idx := strings.Index(line, digit)
-      last_digit_idx := strings.LastIndex(line, digit)
+      last_digit_idx := strings.LastIndex(line, digits[i])
+      last_digit_en_idx := strings.LastIndex(line, digits_en[i])
 
-      digit_en := digits_en[i]
-      first_digit_en_idx := strings.LastIndex(line, digit_en)
-      last_digit_en_idx := strings.LastIndex(line, digit_en)
-
-      if first_digit_idx > -1 && first_digit_en_idx > -1 {
-        if first_digit[0] != -1 {
-          first_digit_final = min(min(first_digit_idx, first_digit_en_idx), first_digit_final)
-        } else {
-          first_digit_final = min(first_digit_idx, first_digit_en_idx)
-        }
-      } else {
-        first_digit_final = min(max(first_digit_idx, first_digit_en_idx), first_digit_final)
+      min_idx := first_digit[0]
+      if first_digit_idx != -1 && first_digit_en_idx != -1 && min_idx != -1 {
+        min_idx = min(min(first_digit_idx, first_digit_en_idx), min_idx)
+      } else if first_digit_idx != -1 && first_digit_en_idx != -1 {
+        min_idx = min(first_digit_idx, first_digit_en_idx)
+      } else if first_digit_idx != -1 && min_idx != -1 {
+        min_idx = min(first_digit_idx, min_idx)
+      } else if first_digit_en_idx != -1 && min_idx != -1 {
+        min_idx = min(first_digit_en_idx, min_idx)
+      } else if first_digit_idx != -1 {
+        min_idx = first_digit_idx
+      } else if first_digit_en_idx != -1 {
+        min_idx = first_digit_en_idx
       }
 
-      if first_digit_final != first_digit[1] {
-        first_digit[1] = i
+      if first_digit[0] != min_idx {
+        first_digit[0] = min_idx
+        first_digit[1] = i + 1
       }
 
-      if last_digit_idx > -1 && last_digit_en_idx > -1 {
-        if last_digit[0] != 1 {
-          last_digit_final = max(max(last_digit_idx, last_digit_en_idx), last_digit_final)
-        } else {
-          last_digit_final = max(last_digit_idx, last_digit_en_idx)
-        }
-      } else {
-        last_digit_final = max(max(last_digit_idx, last_digit_en_idx), last_digit_final)
-      }
-
-      if last_digit_final != last_digit[1] {
-        last_digit[1] =  i
+      max_idx := max(max(last_digit_idx, last_digit_en_idx), last_digit[0])
+      if last_digit[0] != max_idx {
+        last_digit[0] = max_idx
+        last_digit[1] = i + 1
       }
     }
-
-    if last_digit[0] == -1 {
-      last_digit[0] = first_digit[0]
-      last_digit[1] = first_digit[1]
+    sum, err := strconv.Atoi(fmt.Sprintf("%d%d", first_digit[1], last_digit[1]))
+    if err != nil {
+      continue
     }
-    fmt.Printf("%s - %s\n", first_digit[1], last_digit[1])
-    total += (first_digit[1] + last_digit[1])
+    total += sum
   }
 
   fmt.Print(total)
