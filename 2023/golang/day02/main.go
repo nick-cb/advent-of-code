@@ -23,21 +23,15 @@ func main() {
 
   scanner := bufio.NewScanner(file)
 
-  var correct_games []int
+  total := 0
   for scanner.Scan() {
     line := scanner.Text()
 
-    game_infos := strings.Split(line, ":")
-    game_name := game_infos[0]
-    game_data := game_infos[1]
-    game_id, err := strconv.Atoi(strings.Split(game_name, " ")[1])
-    if err != nil {
-      continue
-    }
+    game_data := strings.Split(line, ":")[1]
     bags := strings.Split(game_data, ";")
-    is_valid := true
+    type_count := make(map[string]int)
     for _, bag := range bags {
-      bag_count := make(map[string]int)
+      cube_type_count := make(map[string]int)
       cube_types := strings.Split(bag, ",")
       for _, cube_type := range cube_types {
         // fmt.Printf("%s \n", strings.Split(strings.Trim(cube_type, " "), " ")[1])
@@ -50,20 +44,16 @@ func main() {
         }
         name := strings.Trim(name_part, " ")
 
-        bag_count[name] += count
-        if bag_count["red"] > 12 || bag_count["green"] > 13 || bag_count["blue"] > 14 {
-          is_valid = false
-        }
+        cube_type_count[name] += count
       }
+
+      type_count["red"] = max(cube_type_count["red"], type_count["red"])
+      type_count["green"] = max(cube_type_count["green"], type_count["green"])
+      type_count["blue"] = max(cube_type_count["blue"], type_count["blue"])
     }
-    if is_valid {
-      correct_games = append(correct_games, game_id)
-    }
+
+    total += (type_count["red"] * type_count["green"] * type_count["blue"])
   }
 
-  total := 0
-  for _, id := range correct_games {
-    total += id
-  }
   fmt.Printf("%d", total)
 }
