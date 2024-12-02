@@ -17,9 +17,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	result := Run(data)
+
+	fmt.Printf("%d", result)
+}
+
+func Run(input []byte) int {
 	var leftSide []int
 	var rightSide []int
-	scanner := bufio.NewScanner(bytes.NewReader(data))
+	scanner := bufio.NewScanner(bytes.NewReader(input))
 	for scanner.Scan() {
 		line := scanner.Text()
 		sides := strings.Split(line, "   ")
@@ -46,5 +52,5 @@ func main() {
 		total += (max(leftValue, rightSide[i]) - min(leftValue, rightSide[i]))
 	}
 
-	fmt.Printf("%d", total)
+	return total
 }
